@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deepa Chandrasekar — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #E50914; --red-dark: #b0060f; --black: #000000;
+    --dark: #141414; --card: #1a1a1a; --card2: #242424;
+    --text: #e5e5e5; --muted: #8c8c8c; --white: #ffffff;
+  }
+  html, body { background: var(--black); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  #profile-screen {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 0%, #1a0000 0%, #000 60%);
+    padding: 2rem; transition: opacity 0.5s ease;
+  }
+  #profile-screen.fade-out { opacity: 0; pointer-events: none; }
+  .netflix-logo { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); color: var(--red); letter-spacing: 5px; margin-bottom: 0.5rem; text-shadow: 0 0 60px rgba(229,9,20,0.5); }
+  .netflix-tagline { font-size: 0.75rem; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 3.5rem; }
+  .profile-heading { font-weight: 300; font-size: clamp(1.1rem, 3vw, 1.8rem); color: var(--white); margin-bottom: 3rem; letter-spacing: 2px; }
+  .profiles-grid { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; max-width: 950px; }
+  .profile-card { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; cursor: pointer; transition: transform 0.25s ease; }
+  .profile-card:hover { transform: scale(1.08); }
+  .profile-card:hover .profile-avatar { border-color: var(--white); }
+  .profile-card:hover .profile-label { color: var(--white); }
+  .profile-avatar { width: 130px; height: 130px; border-radius: 6px; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; transition: border-color 0.2s ease; position: relative; overflow: hidden; }
+  .profile-avatar::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 70%); }
+  .av-personal  { background: linear-gradient(135deg, #0d0d2b, #1a1a4e); }
+  .av-education { background: linear-gradient(135deg, #001020, #0a2a50); }
+  .av-projects  { background: linear-gradient(135deg, #1a0a00, #5c2800); }
+  .av-skills    { background: linear-gradient(135deg, #001a10, #004d30); }
+  .av-exp       { background: linear-gradient(135deg, #1a0000, #5c0a0a); }
+  .profile-label { font-size: 0.9rem; font-weight: 400; color: var(--muted); letter-spacing: 1px; text-align: center; transition: color 0.2s; }
+
+  #portfolio { display: none; min-height: 100vh; background: var(--dark); opacity: 0; transition: opacity 0.5s ease; }
+  #portfolio.visible { opacity: 1; }
+
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 4%; background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent); backdrop-filter: blur(6px); }
+  nav .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--red); letter-spacing: 3px; }
+  nav .nav-tabs { display: flex; gap: 0.25rem; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px; }
+  nav .nav-tab { padding: 0.4rem 0.9rem; border-radius: 3px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; color: var(--muted); transition: all 0.2s; border: none; background: transparent; text-transform: uppercase; font-family: 'Barlow', sans-serif; }
+  nav .nav-tab.active { background: var(--red); color: var(--white); }
+  nav .nav-tab:hover:not(.active) { color: var(--white); }
+  nav .back-btn { font-size: 0.75rem; color: var(--muted); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); padding: 0.35rem 0.9rem; border-radius: 3px; transition: all 0.2s; background: transparent; font-family: 'Barlow', sans-serif; }
+  nav .back-btn:hover { color: var(--white); border-color: var(--white); }
+
+  .hero { height: 58vh; min-height: 320px; display: flex; flex-direction: column; justify-content: flex-end; padding: 4% 4% 3rem; position: relative; overflow: hidden; margin-top: -70px; }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; transition: background 0.6s ease; }
+  .hero-bg-personal  { background: linear-gradient(135deg, #060616 0%, #1a1a4e 50%, #000 100%); }
+  .hero-bg-education { background: linear-gradient(135deg, #000810 0%, #0a2a50 50%, #000 100%); }
+  .hero-bg-projects  { background: linear-gradient(135deg, #100500 0%, #5c2800 50%, #000 100%); }
+  .hero-bg-skills    { background: linear-gradient(135deg, #000e06 0%, #004d30 50%, #000 100%); }
+  .hero-bg-exp       { background: linear-gradient(135deg, #0a0000 0%, #5c0a0a 50%, #000 100%); }
+  .hero-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, transparent 65%), linear-gradient(to top, rgba(20,20,20,1) 0%, transparent 55%); }
+  .hero-content { position: relative; z-index: 2; max-width: 640px; }
+  .hero-tag { font-size: 0.7rem; font-weight: 700; color: var(--red); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 7vw, 5.5rem); line-height: 0.95; color: var(--white); letter-spacing: 2px; }
+  .hero-subtitle { font-size: 0.95rem; font-weight: 300; color: var(--text); margin-top: 0.75rem; font-style: italic; max-width: 480px; line-height: 1.6; }
+  .hero-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .btn-play { display: flex; align-items: center; gap: 0.5rem; background: var(--white); color: var(--black); border: none; padding: 0.55rem 1.4rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 0.85rem; border-radius: 3px; cursor: default; }
+  .btn-info { display: flex; align-items: center; gap: 0.5rem; background: rgba(109,109,110,0.7); color: var(--white); border: none; padding: 0.55rem 1.4rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 0.85rem; border-radius: 3px; cursor: default; }
+
+  .section { padding: 0 4% 3rem; }
+  .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: 1px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .section-title::after { content:''; flex:1; height:1px; background: rgba(255,255,255,0.08); }
+
+  .cards-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 0.75rem; }
+
+  .card { background: var(--card); border-radius: 4px; padding: 1.25rem 1.5rem; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+  .card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.12); box-shadow: 0 16px 48px rgba(0,0,0,0.6); }
+  .card:hover::before { transform: scaleX(1); }
+  .card-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .card-title { font-weight: 700; font-size: 0.95rem; color: var(--white); margin-bottom: 0.3rem; line-height: 1.3; }
+  .card-sub { font-size: 0.72rem; color: var(--red); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.5rem; text-transform: uppercase; }
+  .card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; font-weight: 300; }
+  .card-year { font-size: 0.72rem; color: rgba(140,140,140,0.7); margin-top: 0.75rem; font-style: italic; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; }
+  .card-tag { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 0.18rem 0.45rem; background: rgba(229,9,20,0.12); color: var(--red); border-radius: 2px; border: 1px solid rgba(229,9,20,0.25); }
+
+  .about-block { display: flex; gap: 2.5rem; flex-wrap: wrap; align-items: flex-start; }
+  .about-text { flex: 1 1 360px; }
+  .about-text p { font-size: 0.95rem; line-height: 1.85; color: var(--text); font-weight: 300; margin-bottom: 1rem; }
+  .about-text strong { color: var(--white); font-weight: 700; }
+  .about-stats { flex: 0 1 200px; display: flex; flex-direction: column; gap: 0.85rem; }
+  .stat-box { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 0.9rem 1.1rem; }
+  .stat-label { font-size: 0.62rem; color: var(--red); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.25rem; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--white); letter-spacing: 1px; line-height: 1.3; }
+
+  .skills-layout { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .skills-left { flex: 1 1 300px; }
+  .skills-right { flex: 1 1 260px; }
+  .skill-category { margin-bottom: 1.75rem; }
+  .skill-cat-label { font-size: 0.62rem; color: var(--red); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.6rem; }
+  .skills-grid { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .skill-pill { padding: 0.35rem 0.8rem; background: var(--card2); border: 1px solid rgba(255,255,255,0.07); border-radius: 2px; font-size: 0.75rem; font-weight: 600; color: var(--text); letter-spacing: 0.5px; transition: all 0.2s; text-transform: uppercase; cursor: default; }
+  .skill-pill:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+
+  .progress-item { margin-bottom: 1.1rem; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+  .progress-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+  .progress-pct { font-size: 0.75rem; color: var(--muted); }
+  .progress-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(to right, var(--red-dark), var(--red)); border-radius: 2px; }
+
+  .contact-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .contact-card { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 1rem; flex: 1 1 200px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .contact-card:hover { border-color: var(--red); background: rgba(229,9,20,0.08); }
+  .contact-card .c-icon { font-size: 1.4rem; }
+  .contact-card .c-label { font-size: 0.62rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .contact-card .c-val { font-size: 0.82rem; color: var(--white); font-weight: 600; margin-top: 2px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  footer { text-align: center; padding: 2rem; font-size: 0.72rem; color: var(--muted); border-top: 1px solid rgba(255,255,255,0.05); letter-spacing: 1px; }
+  footer span { color: var(--red); }
+
+  @media (max-width: 620px) {
+    .profiles-grid { gap: 1.2rem; }
+    .profile-avatar { width: 100px; height: 100px; font-size: 2.6rem; }
+    nav .nav-tabs { display: none; }
+    .hero { height: auto; padding-top: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="profile-screen">
+  <div class="netflix-logo">DEEFLIX</div>
+  <div class="netflix-tagline">deepa chandrasekar · toronto, canada</div>
+  <p class="profile-heading">Who's watching?</p>
+  <div class="profiles-grid">
+    <div class="profile-card" data-tab="personal">
+      <div class="profile-avatar av-personal">👩‍💻</div>
+      <div class="profile-label">Personal Info</div>
+    </div>
+    <div class="profile-card" data-tab="education">
+      <div class="profile-avatar av-education">🎓</div>
+      <div class="profile-label">Education</div>
+    </div>
+    <div class="profile-card" data-tab="projects">
+      <div class="profile-avatar av-projects">🚀</div>
+      <div class="profile-label">Projects</div>
+    </div>
+    <div class="profile-card" data-tab="skills">
+      <div class="profile-avatar av-skills">⚡</div>
+      <div class="profile-label">Skills</div>
+    </div>
+    <div class="profile-card" data-tab="experience">
+      <div class="profile-avatar av-exp">💼</div>
+      <div class="profile-label">Experience</div>
+    </div>
+  </div>
+</div>
+
+<div id="portfolio">
+  <nav>
+    <div class="logo">DEEPAFLIX</div>
+    <div class="nav-tabs">
+      <button class="nav-tab" data-tab="personal">Personal</button>
+      <button class="nav-tab" data-tab="education">Education</button>
+      <button class="nav-tab" data-tab="projects">Projects</button>
+      <button class="nav-tab" data-tab="skills">Skills</button>
+      <button class="nav-tab" data-tab="experience">Experience</button>
+    </div>
+    <button class="back-btn" id="back-btn">⟵ Profiles</button>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-tag" id="hero-tag">NOW STREAMING</div>
+      <div class="hero-title" id="hero-title">DEEPA CHANDRASEKAR</div>
+      <div class="hero-subtitle" id="hero-subtitle">Engineering student. Cybersecurity defender. Brown sugar milk tea enthusiast.</div>
+      <div class="hero-actions">
+        <div class="btn-play">▶ &nbsp;Play</div>
+        <div class="btn-info">ℹ &nbsp;More Info</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAL -->
+  <div class="tab-panel section" id="panel-personal">
+    <div class="section-title">About Deepa</div>
+    <div class="about-block">
+      <div class="about-text">
+        <p>Hey, I'm <strong>Deepa Chandrasekar</strong> — a third-year Engineering student at <strong>Humber College</strong> with an intense focus on <strong>cybersecurity and cloud architecture</strong>. Based in Toronto, Canada. 📍</p>
+        <p>I'm passionate about <strong>deconstructing complex systems</strong> to understand how to better defend them — whether that means spinning up a hybrid cloud SOC, writing Suricata signatures from scratch, or building automated incident response pipelines on AWS.</p>
+        <p>My particular interest lies in <strong>automated security response</strong>: the intersection of cloud infrastructure and intelligent threat mitigation. The best defense is one that doesn't need you awake at 3am.</p>
+        <p>The vibe? High-energy problem-solving and relentless technical curiosity — usually fueled by a <strong>milk tea with brown sugar pearls</strong>. 🧋</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-box"><div class="stat-label">Location</div><div class="stat-value">Toronto, Canada 🍁</div></div>
+        <div class="stat-box"><div class="stat-label">Focus</div><div class="stat-value">Cybersecurity & Cloud</div></div>
+        <div class="stat-box"><div class="stat-label">Year</div><div class="stat-value">3rd Year Engineering</div></div>
+        <div class="stat-box"><div class="stat-label">Status</div><div class="stat-value">Open to Opportunities ✅</div></div>
+        <div class="stat-box"><div class="stat-label">Fuel</div><div class="stat-value">Brown Sugar Milk Tea 🧋</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="tab-panel section" id="panel-education">
+    <div class="section-title">Academic Journey</div>
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">🏛️</div>
+        <div class="card-title">Bachelor of Engineering</div>
+        <div class="card-sub">Humber College · Toronto, Canada</div>
+        <div class="card-desc">Currently in 3rd year with deep focus on cybersecurity, cloud architecture, and network systems. Building real-world expertise through hands-on lab projects alongside coursework — from IPS deployments to cloud SOC integrations.</div>
+        <div class="card-year">📅 Current — 3rd Year</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏫</div>
+        <div class="card-title">High School — STEM Track</div>
+        <div class="card-sub">Secondary Education</div>
+        <div class="card-desc">Completed with a strong foundation in STEM disciplines and preparatory engineering coursework, laying the groundwork for a technical degree path.</div>
+        <div class="card-year">📅 Completed</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2.5rem;">Licenses & Certifications</div>
+    <div class="project-grid">
+      <div class="card">
+        <div class="card-icon">🟦</div>
+        <div class="card-title">Meta Database Engineer</div>
+        <div class="card-sub">Meta · Issued Nov 2025</div>
+        <div class="card-desc">Professional certification in database engineering covering advanced SQL, data modelling, and backend database design — issued by Meta through their professional certificate programme.</div>
+        <div class="card-tags"><span class="card-tag">SQL</span><span class="card-tag">Database Design</span><span class="card-tag">Meta</span></div>
+        <div class="card-year">🪪 ID: KK5PC1PUN30O</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔵</div>
+        <div class="card-title">Google Digital Marketing & E-commerce</div>
+        <div class="card-sub">Google · Issued Nov 2025</div>
+        <div class="card-desc">Certification covering digital marketing fundamentals, e-commerce strategy, SEO, and data-driven campaign management — issued by Google through their career certificate programme.</div>
+        <div class="card-tags"><span class="card-tag">Digital Marketing</span><span class="card-tag">E-commerce</span><span class="card-tag">Google</span></div>
+        <div class="card-year">🪪 ID: CXYO88HP6HAH</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">☕</div>
+        <div class="card-title">Learning Java 11</div>
+        <div class="card-sub">LinkedIn Learning · Issued Sep 2024</div>
+        <div class="card-desc">Comprehensive course covering Java 11 fundamentals and modern language features — directly applied to OOP projects including the Chess Engine and Student Database Management System.</div>
+        <div class="card-tags"><span class="card-tag">Java</span><span class="card-tag">OOP</span><span class="card-tag">LinkedIn</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Excel Essential Training (Microsoft 365)</div>
+        <div class="card-sub">LinkedIn Learning · Issued Jun 2024</div>
+        <div class="card-desc">Training in Microsoft Excel covering data analysis, formulas, pivot tables, and spreadsheet automation using the Microsoft 365 suite.</div>
+        <div class="card-tags"><span class="card-tag">Microsoft Excel</span><span class="card-tag">Data Analysis</span><span class="card-tag">LinkedIn</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Learning the JavaScript Language</div>
+        <div class="card-sub">LinkedIn Learning · Issued May 2024</div>
+        <div class="card-desc">Foundational course in JavaScript covering syntax, DOM manipulation, functions, and asynchronous programming concepts.</div>
+        <div class="card-tags"><span class="card-tag">JavaScript</span><span class="card-tag">Web Dev</span><span class="card-tag">LinkedIn</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🇫🇷</div>
+        <div class="card-title">French Language — Teens 2</div>
+        <div class="card-sub">Alliance Française of Madras · Issued Dec 2020</div>
+        <div class="card-desc">Certified completion of Teens 2 level French language course — demonstrating multilingual aptitude and commitment to language learning from an early age.</div>
+        <div class="card-tags"><span class="card-tag">French</span><span class="card-tag">Language</span><span class="card-tag">Alliance Française</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🇫🇷</div>
+        <div class="card-title">French Language — Teens 1</div>
+        <div class="card-sub">Alliance Française of Madras · Issued Mar 2020</div>
+        <div class="card-desc">Foundation level French language certification through the Alliance Française de Madras programme — the first step in a multilingual journey.</div>
+        <div class="card-tags"><span class="card-tag">French</span><span class="card-tag">Language</span><span class="card-tag">Alliance Française</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="tab-panel section" id="panel-projects">
+    <div class="section-title">🔐 Security & Cloud Projects</div>
+    <div class="project-grid">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Automated Incident Response Pipeline</div>
+        <div class="card-sub">Cloud Security · AWS · Automation</div>
+        <div class="card-desc">Cloud-native security workflow using AWS Lambda, EventBridge, and an IDS. Detects attacks on a VM, triggers Lambda through EventBridge, and instantly applies security group rules to block malicious IPs — zero manual intervention required.</div>
+        <div class="card-tags"><span class="card-tag">AWS Lambda</span><span class="card-tag">EventBridge</span><span class="card-tag">IDS</span><span class="card-tag">Automation</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🛡️</div>
+        <div class="card-title">Hybrid Cloud Security Operations Center</div>
+        <div class="card-sub">SOC · SIEM · Cloud + Local</div>
+        <div class="card-desc">Complex integration connecting a local Kali Linux VM in VirtualBox to a Wazuh SIEM server on AWS EC2. Tailscale bridges local and cloud environments, enabling centralized security monitoring and event reporting from a private virtual network.</div>
+        <div class="card-tags"><span class="card-tag">Wazuh</span><span class="card-tag">Kali Linux</span><span class="card-tag">AWS EC2</span><span class="card-tag">Tailscale</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚦</div>
+        <div class="card-title">Inline IPS Gateway</div>
+        <div class="card-sub">Intrusion Prevention · Network Security</div>
+        <div class="card-desc">Suricata deployed in inline mode on a dedicated Linux VM as a network gateway. Custom routing and handwritten signatures intercept and drop malicious traffic between external attackers and internal targets in real-time.</div>
+        <div class="card-tags"><span class="card-tag">Suricata</span><span class="card-tag">Linux</span><span class="card-tag">IPS</span><span class="card-tag">Custom Signatures</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <div class="card-title">Enterprise Network Firewall Architecture</div>
+        <div class="card-sub">Firewall · Dual-Segment Network</div>
+        <div class="card-desc">Dual-segment network security design using pfSense in VirtualBox. Manages traffic between LAN1 and LAN2 with granular firewall rules controlling ICMP and TCP/UDP flows.</div>
+        <div class="card-tags"><span class="card-tag">pfSense</span><span class="card-tag">VirtualBox</span><span class="card-tag">Firewall Rules</span><span class="card-tag">LAN Segmentation</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Vulnerability Assessment & Triage</div>
+        <div class="card-sub">Penetration Testing · Security Auditing</div>
+        <div class="card-desc">Comprehensive security assessments using Nessus to identify, prioritize, and remediate vulnerabilities within virtualized environments — with structured triage workflows.</div>
+        <div class="card-tags"><span class="card-tag">Nessus</span><span class="card-tag">Vuln Triage</span><span class="card-tag">VMs</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📡</div>
+        <div class="card-title">Network Forensics & Security Monitoring</div>
+        <div class="card-sub">Forensics · Log Analysis</div>
+        <div class="card-desc">Captured and analyzed network traffic to identify security breaches. Utilized Elastic Stack for log ingestion, data visualization, and security event correlation across monitored systems.</div>
+        <div class="card-tags"><span class="card-tag">Elastic Stack</span><span class="card-tag">Forensics</span><span class="card-tag">Log Management</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Distributed SDN Infrastructure</div>
+        <div class="card-sub">Software-Defined Networking</div>
+        <div class="card-desc">Developed a software-defined network infrastructure to centralize network control and improve traffic management efficiency across virtualized environments.</div>
+        <div class="card-tags"><span class="card-tag">SDN</span><span class="card-tag">Network Control</span><span class="card-tag">Traffic Management</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Automated Cloud Telemetry System</div>
+        <div class="card-sub">Cloud Monitoring · AWS</div>
+        <div class="card-desc">Telemetry pipeline to collect, process, and analyze real-time data from cloud resources for security auditing and performance monitoring.</div>
+        <div class="card-tags"><span class="card-tag">AWS</span><span class="card-tag">Telemetry</span><span class="card-tag">Real-time</span><span class="card-tag">Auditing</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔑</div>
+        <div class="card-title">Cloud IAM Framework</div>
+        <div class="card-sub">AWS IAM · Access Control</div>
+        <div class="card-desc">Implemented secure access policies within AWS using the principle of least privilege, managing permissions across EC2 and Lambda with a structured IAM architecture.</div>
+        <div class="card-tags"><span class="card-tag">IAM</span><span class="card-tag">EC2</span><span class="card-tag">Lambda</span><span class="card-tag">Least Privilege</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔬</div>
+        <div class="card-title">AI-Enhanced Computer Forensics Investigations</div>
+        <div class="card-sub">Digital Forensics · Machine Learning · Capstone</div>
+        <div class="card-desc">Dual-phase capstone combining deep forensic research with hands-on investigation. Produced a 15-page formal forensic report and collected evidence using Autopsy. The technical core involved building ML models to automate log analysis, detect anomalies, and identify malware signatures within disk images.</div>
+        <div class="card-tags"><span class="card-tag">Autopsy</span><span class="card-tag">ML</span><span class="card-tag">Anomaly Detection</span><span class="card-tag">Log Analysis</span><span class="card-tag">Malware</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗃️</div>
+        <div class="card-title">Secure Data Storage & Risk Management System</div>
+        <div class="card-sub">Data Security · Risk Assessment · Compliance</div>
+        <div class="card-desc">Specialized project focused on the full lifecycle of sensitive information — data classification, formal risk assessments, and implementing security controls to ensure data integrity and confidentiality across a distributed storage network.</div>
+        <div class="card-tags"><span class="card-tag">Data Classification</span><span class="card-tag">Risk Assessment</span><span class="card-tag">Security Controls</span><span class="card-tag">Distributed Storage</span></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2.5rem;">💻 Software & Dev Projects</div>
+    <div class="project-grid">
+      <div class="card">
+        <div class="card-icon">♟️</div>
+        <div class="card-title">Java Strategic Chess Engine</div>
+        <div class="card-sub">Java · OOP · GUI</div>
+        <div class="card-desc">Full-scale Chess application in Java using OOP principles. Complex move-validation logic, state management for check/checkmate/castling, and a complete GUI for player interactions.</div>
+        <div class="card-tags"><span class="card-tag">Java</span><span class="card-tag">OOP</span><span class="card-tag">GUI</span><span class="card-tag">Algorithms</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎮</div>
+        <div class="card-title">Strategic Game Development</div>
+        <div class="card-sub">Python · Java · Logic Design</div>
+        <div class="card-desc">Logic design and implementation for classic strategic games including Chess and Tic-Tac-Toe, focusing on OOP principles and efficient algorithm design.</div>
+        <div class="card-tags"><span class="card-tag">Python</span><span class="card-tag">Java</span><span class="card-tag">OOP</span><span class="card-tag">Algorithms</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗄️</div>
+        <div class="card-title">Student Database Management System</div>
+        <div class="card-sub">Java · SQL · Backend</div>
+        <div class="card-desc">Robust backend for managing academic records — full CRUD on student profiles, grade tracking, and course enrollment with data integrity enforcement throughout.</div>
+        <div class="card-tags"><span class="card-tag">Java</span><span class="card-tag">SQL</span><span class="card-tag">CRUD</span><span class="card-tag">MySQL</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">Multimodal Hateful Meme Detection</div>
+        <div class="card-sub">Machine Learning · Python · NLP</div>
+        <div class="card-desc">ML system using Python to simultaneously analyze image and text data, identifying hateful content in memes using specialized datasets and multimodal classification techniques.</div>
+        <div class="card-tags"><span class="card-tag">Python</span><span class="card-tag">ML</span><span class="card-tag">NLP</span><span class="card-tag">Computer Vision</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧋</div>
+        <div class="card-title">Boba Tea Customization App</div>
+        <div class="card-sub">Flutter · Dart · Mobile</div>
+        <div class="card-desc">Mobile ordering app built with Flutter and Dart in Android Studio. Detailed UI for customizing milk tea bases, toppings (brown sugar pearls, naturally), and sweetness levels.</div>
+        <div class="card-tags"><span class="card-tag">Flutter</span><span class="card-tag">Dart</span><span class="card-tag">Android Studio</span><span class="card-tag">Mobile</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Smart Inventory Management System</div>
+        <div class="card-sub">Database · Automation</div>
+        <div class="card-desc">Database-driven application tracking inventory levels with automated low-stock alerts and detailed report generation built in.</div>
+        <div class="card-tags"><span class="card-tag">SQL</span><span class="card-tag">Automation</span><span class="card-tag">Reporting</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔌</div>
+        <div class="card-title">Arduino Hardware System</div>
+        <div class="card-sub">Embedded Systems · C++</div>
+        <div class="card-desc">Hands-on embedded systems project using Arduino microcontrollers and C++. Circuit design, sensor integration (ultrasonic/temperature), and real-time data processing to control physical outputs like LEDs and motors.</div>
+        <div class="card-tags"><span class="card-tag">Arduino</span><span class="card-tag">C++</span><span class="card-tag">Embedded</span><span class="card-tag">Sensors</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="tab-panel section" id="panel-skills">
+    <div class="section-title">Tech Stack & Skills</div>
+    <div class="skills-layout">
+      <div class="skills-left">
+        <div class="skill-category">
+          <div class="skill-cat-label">Languages</div>
+          <div class="skills-grid">
+            <div class="skill-pill">Python</div><div class="skill-pill">Java</div>
+            <div class="skill-pill">C++</div><div class="skill-pill">SQL</div>
+            <div class="skill-pill">Bash</div><div class="skill-pill">JavaScript</div>
+            <div class="skill-pill">Dart</div>
+          </div>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-label">Cybersecurity</div>
+          <div class="skills-grid">
+            <div class="skill-pill">Suricata IDS/IPS</div><div class="skill-pill">Wazuh SIEM</div>
+            <div class="skill-pill">pfSense</div><div class="skill-pill">Nessus</div>
+            <div class="skill-pill">Elastic Stack</div><div class="skill-pill">Network Forensics</div>
+            <div class="skill-pill">Incident Response</div><div class="skill-pill">Vuln Triage</div>
+            <div class="skill-pill">Kali Linux</div>
+          </div>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-label">Cloud & Infrastructure</div>
+          <div class="skills-grid">
+            <div class="skill-pill">AWS EC2</div><div class="skill-pill">AWS Lambda</div>
+            <div class="skill-pill">AWS IAM</div><div class="skill-pill">AWS S3</div>
+            <div class="skill-pill">EventBridge</div><div class="skill-pill">VirtualBox</div>
+            <div class="skill-pill">VMware</div><div class="skill-pill">Docker</div>
+            <div class="skill-pill">Tailscale VPN</div><div class="skill-pill">SDN</div>
+          </div>
+        </div>
+        <div class="skill-category">
+          <div class="skill-cat-label">Dev & Frameworks</div>
+          <div class="skills-grid">
+            <div class="skill-pill">Git</div><div class="skill-pill">Linux Admin</div>
+            <div class="skill-pill">Flutter</div><div class="skill-pill">Android Studio</div>
+            <div class="skill-pill">MySQL</div><div class="skill-pill">Pandas</div>
+            <div class="skill-pill">NumPy</div><div class="skill-pill">Arduino</div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-right">
+        <div class="skill-cat-label" style="margin-bottom:1.1rem;">Proficiency</div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Cybersecurity & Defense</span><span class="progress-pct">88%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:88%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Cloud Architecture (AWS)</span><span class="progress-pct">82%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:82%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Network Security & Forensics</span><span class="progress-pct">80%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Linux Administration</span><span class="progress-pct">78%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:78%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Java / OOP Development</span><span class="progress-pct">75%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Python & Data / ML</span><span class="progress-pct">73%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:73%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Mobile Dev (Flutter/Dart)</span><span class="progress-pct">65%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:65%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">Embedded Systems (Arduino)</span><span class="progress-pct">60%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
+        </div>
+        <div class="skill-category" style="margin-top:2rem;">
+          <div class="skill-cat-label">Soft Skills</div>
+          <div class="skills-grid">
+            <div class="skill-pill">Problem Solving</div>
+            <div class="skill-pill">Communication</div>
+            <div class="skill-pill">Multitasking</div>
+            <div class="skill-pill">Adaptability</div>
+            <div class="skill-pill">Fast Learner</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <div class="tab-panel section" id="panel-experience">
+    <div class="section-title">Work Experience</div>
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">🍗</div>
+        <div class="card-title">Cashier & Server</div>
+        <div class="card-sub">Wing Lab · Part-time</div>
+        <div class="card-desc">Managed high-volume customer interactions and financial transactions in a fast-paced hospitality environment. Successfully balanced demanding technical studies with a role requiring sharp multitasking, quick decision-making, and strong communication — the exact same skills that make for a great collaborator and team member in tech.</div>
+        <div class="card-year">📅 Oct 2024 – Apr 2025 &nbsp;·&nbsp; Toronto, Canada</div>
+      </div>
+      <div class="card" style="border: 1px dashed rgba(229,9,20,0.3); background: rgba(229,9,20,0.03);">
+        <div class="card-icon">🔮</div>
+        <div class="card-title">Next Chapter</div>
+        <div class="card-sub">Internship · Co-op · Full-time</div>
+        <div class="card-desc">This spot is reserved — whether it's a cybersecurity internship, cloud engineering co-op, or a role in security operations. The pipeline is live. The signatures are written. Ready to deploy. 🚀</div>
+        <div class="card-year">📅 Coming Soon</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2.5rem;">Get In Touch</div>
+    <div class="contact-grid">
+      <a class="contact-card" href="/cdn-cgi/l/email-protection#4d2928283d2c2e252c23293f2c3e28262c3f7e7d0d2a202c2421632e2220">
+        <div class="c-icon">📧</div>
+        <div><div class="c-label">Email</div><div class="c-val"><span class="__cf_email__" data-cfemail="1f7b7a7a6f7e7c777e717b6d7e6c7a747e6d2c2f5f78727e7673317c7072">[email&#160;protected]</span></div></div>
+      </a>
+      <a class="contact-card" href="https://github.com/deepac22" target="_blank">
+        <div class="c-icon">🐙</div>
+        <div><div class="c-label">GitHub</div><div class="c-val">github.com/deepac22</div></div>
+      </a>
+      <a class="contact-card" href="https://linkedin.com/in/deepa206" target="_blank">
+        <div class="c-icon">💼</div>
+        <div><div class="c-label">LinkedIn</div><div class="c-val">linkedin.com/in/deepa206</div></div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    Made with ❤️ by <span>Deepa Chandrasekar</span> &nbsp;·&nbsp; Toronto, Canada &nbsp;·&nbsp; Inspired by Netflix
+  </footer>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const heroData = {
+    personal:   { tag: 'NOW STREAMING', title: 'DEEPA CHANDRASEKAR', subtitle: 'Engineering student. Cybersecurity defender. Brown sugar milk tea enthusiast. 🧋', bg: 'hero-bg-personal' },
+    education:  { tag: 'ACADEMIC SERIES', title: 'THE LEARNING FILES', subtitle: 'Humber Engineering · Meta · Google · LinkedIn Learning · Alliance Française — 7 certifications and counting.', bg: 'hero-bg-education' },
+    projects:   { tag: 'DEEPA ORIGINALS', title: 'BUILT FROM SCRATCH', subtitle: '17+ projects across cloud security, network defense, AI forensics, machine learning, mobile dev, and embedded systems.', bg: 'hero-bg-projects' },
+    skills:     { tag: 'TECH STACK', title: 'THE ARSENAL', subtitle: 'From Suricata signatures to AWS Lambda functions — the tools of a cybersecurity engineer in training.', bg: 'hero-bg-skills' },
+    experience: { tag: 'CAREER STORY', title: 'THE JOURNEY', subtitle: 'From serving tables to defending networks — every role sharpens the edge.', bg: 'hero-bg-exp' }
+  };
+
+  function enterPortfolio(tab) {
+    const screen = document.getElementById('profile-screen');
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+      screen.style.display = 'none';
+      const portfolio = document.getElementById('portfolio');
+      portfolio.style.display = 'block';
+      setTimeout(() => portfolio.classList.add('visible'), 20);
+      switchTab(tab);
+    }, 500);
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.querySelector(`.nav-tab[data-tab="${tab}"]`);
+    if (activeTab) activeTab.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    const d = heroData[tab];
+    document.getElementById('hero-tag').textContent = d.tag;
+    document.getElementById('hero-title').textContent = d.title;
+    document.getElementById('hero-subtitle').textContent = d.subtitle;
+    document.getElementById('hero-bg').className = 'hero-bg ' + d.bg;
+  }
+
+  function goBack() {
+    const portfolio = document.getElementById('portfolio');
+    portfolio.classList.remove('visible');
+    setTimeout(() => {
+      portfolio.style.display = 'none';
+      const screen = document.getElementById('profile-screen');
+      screen.style.display = 'flex';
+      screen.classList.remove('fade-out');
+    }, 500);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.profile-card').forEach(card => {
+      card.addEventListener('click', () => enterPortfolio(card.dataset.tab));
+    });
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    document.getElementById('back-btn').addEventListener('click', goBack);
+  });
+</script>
+</body>
+</html>
